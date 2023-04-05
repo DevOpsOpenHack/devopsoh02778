@@ -8,6 +8,13 @@ on:
       - '.github/workflows/deployment.yml'
   workflow_dispatch:
 
+env:
+  ARM_CLIENT_ID: "${{ secrets.ARM_CLIENT_ID }}"
+  ARM_CLIENT_SECRET: "${{ secrets.ARM_CLIENT_SECRET }}"
+  ARM_SUBSCRIPTION_ID: "${{ secrets.ARM_SUBSCRIPTION_ID }}"
+  ARM_TENANT_ID: "${{ secrets.ARM_TENANT_ID }}"
+  WORKDIR: "iac/terraform"
+
 defaults:
   run:
     working-directory: iac/terraform
