@@ -1,0 +1,30 @@
+---
+name: 'ci for userprofile'
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'apis/userprofile/**'
+      - '.github/workflows/userprofile.yml'
+  workflow_dispatch:
+permissions:
+  pull-requests: write
+
+defaults:
+  run:
+    working-directory: apis/userprofile
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 12.x
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
