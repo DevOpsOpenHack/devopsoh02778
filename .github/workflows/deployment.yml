@@ -7,6 +7,10 @@ on:
       - 'iac/terraform/**'
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: iac/terraform
+
 jobs:
 
     # Usage for current job: ${{ steps.resources_prefix.outputs.result }}
