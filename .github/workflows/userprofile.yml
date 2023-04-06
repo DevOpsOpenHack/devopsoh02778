@@ -30,29 +30,25 @@ jobs:
       - id: npm_test
         run: npm test
         continue-on-error: true
+      - name: 'create issue on failure'
+        if: github.event_name == 'workflow_dispatch' && steps.npm_test.outcome != 'success'
+        run: |
+          body='### Unit Test `failure`
+          <details>
+          <summary>Workflow details</summary>
+
+          Workflow name: `${{ github.workflow }}`
+          Action: `${{ github.event_name }}`
+          Job: `${{ github.job }}`
+          PR: #${{ github.event.number }}
+          </details>
+
+          Test details: [Run #${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          Pusher: @${{ github.actor }}'
+          gh issue create --title "Issue report" --body "${body}" --repo ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'comment if failure'
         if: github.event_name == 'pull_request' && steps.npm_test.outcome != 'success'
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: |
-              ### Unit Test `failure`
-              <details>
-              <summary>Workflow details</summary>
+        run: exit 1
 
-              Workflow name: `${{ github.workflow }}`
-              Action: `${{ github.event_name }}`
-              Job: `${{ github.job }}`
-              PR: #${{ github.event.number }}
-              </details>
-
-              Test details: [Run #${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-              Pusher: @${{ github.actor }}
-          })
-          run: exit 1
-      - name: 'create bug if failure'
-        if: github.event_name == 'workflow_dispatch' && steps.npm_test.outcome != 'success'
-          # create a bug
-          github_cli(create bug)
-          run: exit 1
