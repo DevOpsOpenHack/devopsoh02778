@@ -2,6 +2,12 @@
 name: 'ci for userprofile'
 
 on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'apis/userprofile/**'
+      - '.github/workflows/userprofile.yml'
   pull_request:
     branches:
       - 'main'
@@ -87,6 +93,7 @@ jobs:
           docker build . -t devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
           docker push devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
       - name: 'Login via Azure CLI'
+        if: github.event_name != 'pull_request'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -94,6 +101,6 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: azure/webapps-deploy@v2
         with:
-          slot-name: 'devopsoh02778userprofile-staging'
+          slot-name: 'staging'
           app-name: 'devopsoh02778userprofile'
           images: 'devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{ github.sha }}'
