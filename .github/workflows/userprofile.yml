@@ -82,5 +82,6 @@ jobs:
         username: devopsoh02778cr
         password: ${{ secrets.REGISTRY_PASSWORD }}
     - run: |
-        docker build . -t api-userprofile:${{ github.sha }}
-        docker push devopsoh02778cr.azurecr.io/devopsoh:api-userprofile:${{ github.sha }}
+        docker build . -t devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
+        docker images
+        docker push devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
