@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 'create PR comment on failure'
-        if: github.event_name == 'pull_request' && failure() 
+        if: github.event_name == 'pull_request' && failure()
         run: |
           body='### Unit Test `failure`
           <details>
@@ -71,3 +71,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: azure/docker-login@v1
+      with:
+        login-server: devopsoh02778cr.azurecr.io
+        username: devopsoh02778cr
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    - run: |
+        docker build . -t api-userprofile:${{ github.sha }}
+        docker push devopsoh02778cr.azurecr.io/devopsoh
