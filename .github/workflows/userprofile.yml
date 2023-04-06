@@ -71,17 +71,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  docker-build:
+  docker-build-push-deploy:
     runs-on: ubuntu-latest
     needs: test
     steps:
-    - uses: actions/checkout@v2
-    - uses: azure/docker-login@v1
-      with:
-        login-server: devopsoh02778cr.azurecr.io
-        username: devopsoh02778cr
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    - run: |
-        docker build . -t devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
-        docker images
-        docker push devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
+      - uses: actions/checkout@v2
+      - uses: azure/docker-login@v1
+        with:
+          login-server: devopsoh02778cr.azurecr.io
+          username: devopsoh02778cr
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: 'build and push'
+        if: github.event_name != 'pull_request'
+        run: |
+          docker build . -t devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
+          docker push devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{github.sha}}
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 'deploy'
+        if: github.event_name != 'pull_request'
+        uses: azure/webapps-deploy@v2
+        with:
+          slot-name: 'devopsoh02778userprofile-staging'
+          app-name: 'devopsoh02778userprofile'
+          images: 'devopsoh02778cr.azurecr.io/devopsoh02778/api-userprofile:${{ github.sha }}'
